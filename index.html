@@ -1,385 +1,190 @@
 <!DOCTYPE html>
-<html lang="ja" class="scroll-smooth">
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GLANZ - 株式会社グランツ</title>
-  <!-- Tailwind CSS -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- GSAP ＆ ScrollTrigger -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Noto+Sans+JP:wght@300;400;600&display=swap" rel="stylesheet">
-
+  <title>GSAP Logo Scroll Animation (Fixed)</title>
   <style>
     body {
-      background-color: #0b1325; /* 濃紺 */
-      color: #f8fafc;
-      font-family: 'Noto Sans JP', sans-serif;
-      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      background-color: #f8f9fa;
+      font-family: sans-serif;
+      color: #333;
     }
-    .font-cinzel {
-      font-family: 'Cinzel', serif;
-    }
-    #opening-overlay {
+
+    /* 固定ヘッダー */
+    .site-header {
       position: fixed;
-      inset: 0;
-      background-color: #0b1325;
-      z-index: 50;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 30px;
+      box-sizing: border-box;
+      background-color: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      border-bottom: 1px solid #eee;
+    }
+
+    /* ヘッダーの受け皿枠 */
+    .header-logo-target {
+      width: 40px;
+      height: 40px;
+    }
+
+    .nav-list {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    /* 1. 画面全体で固定するヒーローセクション */
+    .hero-section {
+      width: 100%;
+      height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
+      position: relative;
     }
 
-    /* ロゴアイコンのホバー切替アニメーション */
-    .logo-default {
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-    .logo-active {
-      opacity: 0;
-      transform: scale(0.85);
-      transition: opacity 0.4s ease, transform 0.4s ease;
-    }
-    
-    .biz-card:hover .logo-default {
-      opacity: 0;
-      transform: scale(1.1);
-    }
-    .biz-card:hover .logo-active {
-      opacity: 1;
-      transform: scale(1);
+    /* 画面全体を覆う fixed ロゴ（最前面に配置） */
+    .animated-logo {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      width: 200px;
+      height: 200px;
+      margin-top: -100px; /* 中央寄せ */
+      margin-left: -100px;
+      overflow: visible;
+      z-index: 2000; /* ヘッダーより上に表示 */
+      pointer-events: none;
     }
 
-    /* 自動補完（autofill）時の背景色を白にする対策 */
-    input:-webkit-autofill,
-    textarea:-webkit-autofill {
-      -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
-      -webkit-text-fill-color: #0f172a !important;
+    .mark-grey { fill: #9DA5A9; }
+    .mark-orange { fill: #FF5500; }
+
+    .hero-text {
+      margin-top: 260px;
+      font-size: 28px;
+      font-weight: bold;
+      letter-spacing: 0.1em;
+      opacity: 0.8;
+    }
+
+    /* 2. アニメーション完了後に現れる下部コンテンツ */
+    .content-section {
+      min-height: 150vh;
+      background: #ffffff;
+      padding: 100px 40px;
+      position: relative;
+      z-index: 10;
     }
   </style>
 </head>
-<body class="antialiased selection:bg-orange-500 selection:text-white">
+<body>
 
-  <!-- 1. オープニングアニメーション -->
-  <div id="opening-overlay">
-    <div class="relative w-48 h-48 md:w-64 md:h-64 flex items-center justify-center">
-      <svg id="logo-svg" class="w-full h-full" viewBox="0 0 200 200" fill="none">
-        <path id="circle-part" 
-              d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" 
-              stroke="#FFFFFF" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"
-              style="opacity: 0; transform-origin: center;" />
-        <polygon id="triangle-part" 
-                 points="130,80 180,100 130,120" 
-                 fill="#FF6B00" 
-                 style="opacity: 0; transform-origin: center;" />
-      </svg>
-    </div>
-    <h1 id="opening-title" class="font-cinzel text-3xl md:text-5xl font-bold tracking-widest text-white mt-6 opacity-0">
-      GLANZ
-    </h1>
-  </div>
-
-  <!-- 2. ヘッダー -->
-  <header class="fixed top-0 left-0 w-full z-40 bg-[#0b1325]/90 backdrop-blur-md border-b border-slate-800">
-    <div class="max-w-6xl mx-auto px-6 h-20 flex items-center justify-between">
-      <!-- ロゴ -->
-      <a href="#" class="flex items-center gap-3 group">
-        <svg class="w-8 h-8 transition-transform group-hover:scale-105" viewBox="0 0 200 200" fill="none">
-          <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#FFFFFF" stroke-width="22" stroke-linecap="round"/>
-          <polygon points="130,80 180,100 130,120" fill="#FF6B00" />
-        </svg>
-        <span class="font-cinzel text-xl font-bold tracking-wider text-white">GLANZ</span>
-      </a>
-
-      <!-- ナビゲーションメニュー -->
-      <nav class="flex items-center gap-6 md:gap-8 text-xs md:text-sm font-medium">
-        <a href="#business" class="text-slate-300 hover:text-orange-500 transition-colors py-2">
-          BUSINESS
-        </a>
-        <a href="#company" class="text-slate-300 hover:text-orange-500 transition-colors py-2">
-          COMPANY
-        </a>
-        <a href="#contact" class="px-4 py-2 text-xs md:text-sm font-semibold text-white bg-orange-600 hover:bg-orange-500 rounded-full transition-all duration-300 shadow-md">
-          CONTACT
-        </a>
-      </nav>
-    </div>
+  <!-- 固定ヘッダー -->
+  <header class="site-header">
+    <div class="header-logo-target" id="logoTarget"></div>
+    <ul class="nav-list">
+      <li>ABOUT</li>
+      <li>PRODUCTS</li>
+      <li>CONTACT</li>
+    </ul>
   </header>
 
-  <!-- 3. メインコンテンツ -->
-  <main id="main-content" class="pt-20">
-    
-    <!-- ヒーローセクション -->
-    <section class="min-h-[85vh] flex items-center justify-center relative px-6 py-20 text-center overflow-hidden">
-      <div id="hero-bg-shape1" class="absolute -top-10 -left-10 w-72 h-72 border-[20px] border-white/5 rounded-full pointer-events-none"></div>
-      <div id="hero-bg-shape2" class="absolute bottom-10 right-10 w-0 h-0 border-l-[60px] border-l-transparent border-r-[60px] border-r-transparent border-b-[120px] border-b-orange-500/10 pointer-events-none"></div>
+  <!-- 画面固定スクロールエリア -->
+  <section class="hero-section" id="hero">
+    <div class="hero-text" id="heroText">Scroll Down</div>
+  </section>
 
-      <div id="hero-text" class="max-w-3xl relative z-10">
-        <p class="text-orange-500 font-semibold tracking-widest text-sm md:text-base uppercase mb-4">
-          Corporate Profile
-        </p>
-        <h2 class="font-cinzel text-4xl md:text-6xl font-bold tracking-wide mb-6 text-white leading-tight">
-          GLANZ
-        </h2>
-        <p class="text-slate-300 text-base md:text-lg leading-relaxed font-light mb-10 max-w-xl mx-auto">
-          研ぎ澄まされた品質と確かな信頼を。<br>ロゴをモチーフにした幾何学的かつ洗練されたアプローチで、新しい価値を創造します。
-        </p>
-        <a href="#business" class="inline-flex items-center justify-center px-8 py-3.5 text-sm font-medium text-white bg-orange-600 hover:bg-orange-500 rounded-full shadow-lg shadow-orange-600/20 transition-all duration-300">
-          事業内容を見る
-        </a>
-      </div>
-    </section>
+  <!-- スクロール演出用のロゴ（fixedで画面に配置） -->
+  <svg viewBox="0 0 200 200" class="animated-logo" id="animatedLogo">
+    <!-- 丸（グレー） -->
+    <path class="mark-grey" id="circlePart" d="M100,152.4c-28.9,0-52.4-23.4-52.4-52.4S71.1,47.6,100,47.6c25.5,0,46.7,18.2,51.4,42.3h48.1 C194.4,39.4,151.8,0,100,0C44.8,0,0,44.8,0,100s44.8,100,100,100c25.3,0,48.3-9.4,65.9-24.8l-33.8-33.8 C123.2,148.2,112.1,152.4,100,152.4"/>
+    <!-- 三角（オレンジ） -->
+    <polygon class="mark-orange" id="trianglePart" points="200,105.3 200,187.3 118,105.3"/>
+  </svg>
 
-    <!-- 事業内容セクション（白背景＆平行四辺形カード） -->
-    <section id="business" class="py-28 px-6 bg-slate-100 text-slate-900 shadow-2xl relative z-20 overflow-hidden">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-16">
-          <span class="text-orange-600 font-bold text-xs uppercase tracking-widest">Our Services</span>
-          <h3 class="font-cinzel text-3xl md:text-4xl font-bold tracking-wider text-slate-900 mt-1 section-title">
-            BUSINESS
-          </h3>
-          <div class="w-14 h-1.5 bg-orange-500 mx-auto mt-4 transform -skew-x-12"></div>
-        </div>
+  <!-- メインコンテンツ -->
+  <section class="content-section">
+    <h2>Main Content Area</h2>
+    <p>スクロールを下に下げ切っても、ロゴがヘッダー位置に固定されて消えません。</p>
+  </section>
 
-        <!-- 3つの平行四辺形カード -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 px-4">
-          
-          <!-- Card 1 -->
-          <div class="biz-card bg-white border border-slate-200/90 p-8 rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer transform -skew-x-12">
-            <div class="transform skew-x-12">
-              <div class="relative w-12 h-12 mb-6 flex items-center justify-center">
-                <svg class="logo-default absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#94a3b8" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#94a3b8" />
-                </svg>
-                <svg class="logo-active absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#0b1325" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#FF6B00" />
-                </svg>
-              </div>
-              <h4 class="text-lg font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">企画・ブランディング</h4>
-              <p class="text-slate-600 text-sm leading-relaxed">本質を見極めたデザインと戦略で、ブランドの価値を強固に構築します。</p>
-            </div>
-          </div>
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
-          <!-- Card 2 -->
-          <div class="biz-card bg-white border border-slate-200/90 p-8 rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer transform -skew-x-12">
-            <div class="transform skew-x-12">
-              <div class="relative w-12 h-12 mb-6 flex items-center justify-center">
-                <svg class="logo-default absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#94a3b8" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#94a3b8" />
-                </svg>
-                <svg class="logo-active absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#0b1325" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#FF6B00" />
-                </svg>
-              </div>
-              <h4 class="text-lg font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">ソリューション事業</h4>
-              <p class="text-slate-600 text-sm leading-relaxed">課題に対して多角的な視点からアプローチし、最適な解決策を提供します。</p>
-            </div>
-          </div>
-
-          <!-- Card 3 -->
-          <div class="biz-card bg-white border border-slate-200/90 p-8 rounded-xl shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer transform -skew-x-12">
-            <div class="transform skew-x-12">
-              <div class="relative w-12 h-12 mb-6 flex items-center justify-center">
-                <svg class="logo-default absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#94a3b8" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#94a3b8" />
-                </svg>
-                <svg class="logo-active absolute inset-0 w-full h-full" viewBox="0 0 200 200" fill="none">
-                  <path d="M 100 20 A 80 80 0 1 0 180 100 L 110 100" stroke="#0b1325" stroke-width="20" stroke-linecap="round"/>
-                  <polygon points="130,80 180,100 130,120" fill="#FF6B00" />
-                </svg>
-              </div>
-              <h4 class="text-lg font-bold text-slate-900 mb-3 group-hover:text-orange-600 transition-colors">コンサルティング</h4>
-              <p class="text-slate-600 text-sm leading-relaxed">持続可能な成長を見据え、お客様のパートナーとして事業をサポートします。</p>
-            </div>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- 会社概要セクション（ダーク背景） -->
-    <section id="company" class="py-28 px-6 border-t border-slate-800 bg-[#0b1325] relative">
-      <div class="max-w-3xl mx-auto">
-        <div class="text-center mb-16">
-          <span class="text-orange-500 font-semibold text-xs uppercase tracking-widest">About Us</span>
-          <h3 class="font-cinzel text-3xl md:text-4xl font-bold tracking-wider text-white mt-1 section-title">
-            COMPANY
-          </h3>
-          <div class="w-14 h-1.5 bg-orange-500 mx-auto mt-4 transform -skew-x-12"></div>
-        </div>
-
-        <div class="bg-slate-900/80 border border-slate-800 rounded-2xl overflow-hidden shadow-2xl backdrop-blur-sm">
-          <dl class="divide-y divide-slate-800 text-sm md:text-base">
-            <div class="company-row grid grid-cols-3 px-6 py-5 hover:bg-slate-800/40 transition-colors">
-              <dt class="text-slate-400 font-medium">社名</dt>
-              <dd class="col-span-2 text-white font-semibold">株式会社GLANZ（グランツ）</dd>
-            </div>
-            <div class="company-row grid grid-cols-3 px-6 py-5 hover:bg-slate-800/40 transition-colors">
-              <dt class="text-slate-400 font-medium">所在地</dt>
-              <dd class="col-span-2 text-slate-200">〒000-0000 東京都〇〇区〇〇 1-2-3</dd>
-            </div>
-            <div class="company-row grid grid-cols-3 px-6 py-5 hover:bg-slate-800/40 transition-colors">
-              <dt class="text-slate-400 font-medium">代表者</dt>
-              <dd class="col-span-2 text-slate-200">代表取締役 〇〇 〇〇</dd>
-            </div>
-            <div class="company-row grid grid-cols-3 px-6 py-5 hover:bg-slate-800/40 transition-colors">
-              <dt class="text-slate-400 font-medium">事業内容</dt>
-              <dd class="col-span-2 text-slate-200">企画・ブランディング / ソリューション事業 / コンサルティング</dd>
-            </div>
-            <div class="company-row grid grid-cols-3 px-6 py-5 hover:bg-slate-800/40 transition-colors">
-              <dt class="text-slate-400 font-medium">連絡先</dt>
-              <dd class="col-span-2 text-slate-200">info@glanz-example.com</dd>
-            </div>
-          </dl>
-        </div>
-      </div>
-    </section>
-
-    <!-- お問い合わせセクション（入力欄背景を明るいグレー／白に変更） -->
-    <section id="contact" class="py-28 px-6 bg-orange-600 text-white relative">
-      <div class="max-w-xl mx-auto">
-        <div class="text-center mb-12">
-          <span class="text-slate-200 font-semibold text-xs uppercase tracking-widest">Get In Touch</span>
-          <h3 class="font-cinzel text-3xl md:text-4xl font-bold tracking-wider text-white mt-1 section-title">
-            CONTACT
-          </h3>
-          <div class="w-14 h-1.5 bg-white mx-auto mt-4 transform -skew-x-12"></div>
-          <p class="text-slate-100 text-sm mt-6">お仕事のご依頼・ご相談は下記よりお気軽にご連絡ください。</p>
-        </div>
-        
-        <form class="space-y-5 text-left bg-white text-slate-900 p-8 rounded-2xl border border-slate-200 shadow-2xl" onsubmit="event.preventDefault(); alert('お問い合わせありがとうございました。');">
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-2">お名前</label>
-            <input type="text" required class="w-full bg-slate-100/80 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:bg-white text-sm transition-colors">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-2">メールアドレス</label>
-            <input type="email" required class="w-full bg-slate-100/80 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:bg-white text-sm transition-colors">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-700 mb-2">お問い合わせ内容</label>
-            <textarea rows="4" required class="w-full bg-slate-100/80 border border-slate-300 rounded-lg px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-500 focus:bg-white text-sm transition-colors"></textarea>
-          </div>
-          <button type="submit" class="w-full py-4 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition-all duration-300 text-sm shadow-lg mt-2">
-            送信する
-          </button>
-        </form>
-      </div>
-    </section>
-
-    <!-- フッター -->
-    <footer class="py-8 border-t border-slate-800 text-center text-xs text-slate-500 bg-[#0b1325]">
-      &copy; GLANZ Inc. All Rights Reserved.
-    </footer>
-
-  </main>
-
-  <!-- 4. JavaScriptアニメーション ＆ スクロールトリガー -->
   <script>
-    window.addEventListener('load', () => {
-      gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
 
-      // --- A. オープニングアニメーション ---
-      const tl = gsap.timeline({
-        onComplete: () => {
-          gsap.to('#opening-overlay', { 
-            opacity: 0, 
-            duration: 0.6, 
-            onComplete: () => {
-              document.getElementById('opening-overlay').style.display = 'none';
-              initScrollAnimations();
-            }
-          });
-        }
-      });
+    const logo = document.getElementById('animatedLogo');
+    const target = document.getElementById('logoTarget');
 
-      gsap.set('#circle-part', { opacity: 0, scale: 0.3, rotation: -90 });
-      gsap.set('#triangle-part', { opacity: 0, x: -50, y: -50, scale: 0.2, rotation: 180 });
+    // ターゲット（ヘッダー枠）への移動・縮小量を正確に算出する関数
+    function getTargetOffset() {
+      const targetRect = target.getBoundingClientRect();
+      const logoRect = logo.getBoundingClientRect();
 
-      tl.to('#circle-part', { opacity: 1, scale: 1, rotation: 0, duration: 0.8, ease: 'power3.out' })
-        .to('#triangle-part', { opacity: 1, x: 0, y: 0, scale: 1, rotation: 0, duration: 0.6, ease: 'back.out(1.7)' }, '-=0.5')
-        .to('#opening-title', { opacity: 1, y: -10, duration: 0.5, ease: 'power2.out' }, '-=0.2')
-        .to({}, { duration: 0.2 });
+      return {
+        x: targetRect.left - logoRect.left,
+        y: targetRect.top - logoRect.top,
+        scale: targetRect.width / logoRect.width
+      };
+    }
 
+    // 1. 初期状態：パーツを分散させておく
+    gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
+    gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
 
-      // --- B. スクロール動的アニメーション群 ---
-      function initScrollAnimations() {
-        
-        // 1. ヒーロー背景パララックス
-        gsap.to('#hero-bg-shape1', {
-          y: 150,
-          rotation: 90,
-          scrollTrigger: {
-            trigger: 'body',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1
-          }
-        });
-
-        gsap.to('#hero-bg-shape2', {
-          y: -100,
-          rotation: -45,
-          scrollTrigger: {
-            trigger: 'body',
-            start: 'top top',
-            end: 'bottom top',
-            scrub: 1.5
-          }
-        });
-
-        // 2. セクションタイトル表示
-        gsap.utils.toArray('.section-title').forEach(title => {
-          gsap.from(title, {
-            y: 20,
-            duration: 0.6,
-            ease: 'power2.out',
-            scrollTrigger: {
-              trigger: title,
-              start: 'top 90%',
-              once: true
-            }
-          });
-        });
-
-        // 3. 事業内容カード表示
-        gsap.from('.biz-card', {
-          y: 30,
-          duration: 0.7,
-          stagger: 0.12,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#business',
-            start: 'top 85%',
-            once: true
-          }
-        });
-
-        // 4. 会社概要行表示
-        gsap.from('.company-row', {
-          x: -15,
-          duration: 0.5,
-          stagger: 0.08,
-          ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '#company',
-            start: 'top 85%',
-            once: true
-          }
-        });
-
-        ScrollTrigger.refresh();
+    // 2. 画面をピン留め（pin: true）してスクロールアニメーションを実行
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: '+=1500', // 1500px分のスクロールで完了させる設定
+        scrub: 1,      // スクロール追従
+        pin: true,     // ★コレが最重要！完了するまで画面を画面固定する
+        anticipatePin: 1
       }
     });
+
+    // STEP A: 丸と三角が中央に引き寄せられて合体
+    tl.to(['#circlePart', '#trianglePart'], {
+      x: 0,
+      y: 0,
+      rotation: 0,
+      opacity: 1,
+      duration: 1.5,
+      ease: 'power2.out'
+    })
+    .to('#heroText', { opacity: 0, duration: 0.5 }, '<');
+
+    // STEP B: そのままヘッダー左上（#logoTarget）へ収まる
+    tl.to(logo, {
+      x: () => getTargetOffset().x,
+      y: () => getTargetOffset().y,
+      scale: () => getTargetOffset().scale,
+      transformOrigin: 'top left',
+      duration: 1.5,
+      ease: 'power2.inOut'
+    });
+
+    // 画面サイズ変更時に位置を再計算
+    window.addEventListener('resize', () => ScrollTrigger.refresh());
   </script>
 </body>
 </html>
