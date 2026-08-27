@@ -3,14 +3,25 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GSAP Logo Scroll Animation (Fixed)</title>
+  <title>GSAP Logo Scroll Animation (Refined)</title>
+  
+  <!-- Google Fonts (Montserrat) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800&display=swap" rel="stylesheet">
+
   <style>
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
     body {
       margin: 0;
       padding: 0;
       background-color: #f8f9fa;
       font-family: sans-serif;
       color: #333;
+      overflow-x: hidden;
     }
 
     /* 固定ヘッダー */
@@ -23,18 +34,34 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 30px;
-      box-sizing: border-box;
+      padding: 0 24px;
       background-color: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(8px);
       z-index: 1000;
       border-bottom: 1px solid #eee;
     }
 
-    /* ヘッダーの受け皿枠 */
+    /* ヘッダー左上のターゲット枠 */
     .header-logo-target {
       width: 40px;
       height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ヘッダー中央のターゲット（GLANZ文字用） */
+    .header-title-target {
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 20px;
+      letter-spacing: 0.12em;
+      color: #333;
+      opacity: 0; /* 最初は非表示 */
+      white-space: nowrap;
     }
 
     .nav-list {
@@ -47,7 +74,7 @@
       font-size: 14px;
     }
 
-    /* 1. 画面全体で固定するヒーローセクション */
+    /* 画面固定スクロールエリア */
     .hero-section {
       width: 100%;
       height: 100vh;
@@ -58,38 +85,63 @@
       position: relative;
     }
 
-    /* 画面全体を覆う fixed ロゴ（最前面に配置） */
+    /* 中央のGLANZテキスト */
+    .hero-glanz-text {
+      position: absolute;
+      top: calc(50% + 130px);
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Montserrat', sans-serif;
+      font-weight: 800;
+      font-size: 28px;
+      letter-spacing: 0.15em;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    /* アニメーションSVG（初期状態は画面中央） */
     .animated-logo {
       position: fixed;
       top: 50%;
       left: 50%;
       width: 200px;
       height: 200px;
-      margin-top: -100px; /* 中央寄せ */
-      margin-left: -100px;
+      transform: translate(-50%, -50%);
       overflow: visible;
-      z-index: 2000; /* ヘッダーより上に表示 */
+      z-index: 2000;
       pointer-events: none;
     }
 
     .mark-grey { fill: #9DA5A9; }
     .mark-orange { fill: #FF5500; }
 
-    .hero-text {
-      margin-top: 260px;
-      font-size: 28px;
-      font-weight: bold;
-      letter-spacing: 0.1em;
-      opacity: 0.8;
-    }
-
-    /* 2. アニメーション完了後に現れる下部コンテンツ */
+    /* 下部コンテンツ */
     .content-section {
       min-height: 150vh;
       background: #ffffff;
-      padding: 100px 40px;
+      padding: 100px 24px;
       position: relative;
       z-index: 10;
+    }
+
+    @media (max-width: 768px) {
+      .animated-logo {
+        width: 160px;
+        height: 160px;
+      }
+      .hero-glanz-text {
+        top: calc(50% + 110px);
+        font-size: 22px;
+      }
+      .header-logo-target {
+        width: 32px;
+        height: 32px;
+      }
+      .nav-list {
+        gap: 12px;
+        font-size: 12px;
+      }
     }
   </style>
 </head>
@@ -98,6 +150,7 @@
   <!-- 固定ヘッダー -->
   <header class="site-header">
     <div class="header-logo-target" id="logoTarget"></div>
+    <div class="header-title-target" id="headerTitleTarget">GLANZ</div>
     <ul class="nav-list">
       <li>ABOUT</li>
       <li>PRODUCTS</li>
@@ -107,10 +160,10 @@
 
   <!-- 画面固定スクロールエリア -->
   <section class="hero-section" id="hero">
-    <div class="hero-text" id="heroText">Scroll Down</div>
+    <h1 class="hero-glanz-text" id="heroGlanzText">GLANZ</h1>
   </section>
 
-  <!-- スクロール演出用のロゴ（fixedで画面に配置） -->
+  <!-- スクロール演出用のロゴ -->
   <svg viewBox="0 0 200 200" class="animated-logo" id="animatedLogo">
     <!-- 丸（グレー） -->
     <path class="mark-grey" id="circlePart" d="M100,152.4c-28.9,0-52.4-23.4-52.4-52.4S71.1,47.6,100,47.6c25.5,0,46.7,18.2,51.4,42.3h48.1 C194.4,39.4,151.8,0,100,0C44.8,0,0,44.8,0,100s44.8,100,100,100c25.3,0,48.3-9.4,65.9-24.8l-33.8-33.8 C123.2,148.2,112.1,152.4,100,152.4"/>
@@ -121,7 +174,7 @@
   <!-- メインコンテンツ -->
   <section class="content-section">
     <h2>Main Content Area</h2>
-    <p>スクロールを下に下げ切っても、ロゴがヘッダー位置に固定されて消えません。</p>
+    <p>スクロールを下に下げ切ってもロゴとテキストの位置がズレずに固定されます。</p>
   </section>
 
   <!-- GSAP & ScrollTrigger CDN -->
@@ -129,86 +182,96 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
   <script>
-   gsap.registerPlugin(ScrollTrigger);
+    gsap.registerPlugin(ScrollTrigger);
 
-const logo = document.getElementById('animatedLogo');
-const target = document.getElementById('logoTarget');
+    const logo = document.getElementById('animatedLogo');
+    const target = document.getElementById('logoTarget');
 
-function getTargetOffset() {
-  const targetRect = target.getBoundingClientRect();
-  const logoRect = logo.getBoundingClientRect();
+    // ゴール地点（ヘッダーターゲット）への変形量を計算
+    function getTargetOffset() {
+      const targetRect = target.getBoundingClientRect();
+      const logoRect = logo.getBoundingClientRect();
 
-  return {
-    x: targetRect.left - logoRect.left,
-    y: targetRect.top - logoRect.top,
-    scale: targetRect.width / logoRect.width
-  };
-}
+      return {
+        x: targetRect.left - logoRect.left,
+        y: targetRect.top - logoRect.top,
+        scale: targetRect.width / logoRect.width
+      };
+    }
 
-// 画面幅に応じた切り替えの設定
-ScrollTrigger.matchMedia({
+    ScrollTrigger.matchMedia({
 
-  // 1. PC用の設定（769px以上）
-  "(min-width: 769px)": function() {
-    // 初期位置：ダイナミックに大きく分散
-    gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
-    gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
+      // ----------------------------------------
+      // 1. PC用の設定（769px以上）
+      // ----------------------------------------
+      "(min-width: 769px)": function() {
+        gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
+        gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
+        gsap.set(logo, { transformOrigin: 'top left' });
 
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: '+=1500', // PCはしっかりスクロールさせて見せる
-        scrub: 1,
-        pin: true,
-        anticipatePin: 1
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#hero',
+            start: 'top top',
+            end: '+=1400',
+            scrub: 1,
+            pin: true,
+            invalidateOnRefresh: true
+          }
+        });
+
+        // STEP 1: ロゴパーツ合体 & 中央GLANZ文字のフェードアウト
+        tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
+          .to('#heroGlanzText', { opacity: 0, duration: 0.8 }, '<');
+
+        // STEP 2: ロゴがヘッダー左上へ移動 & ヘッダー中央へGLANZ文字がフェードイン
+        tl.to(logo, {
+          x: () => getTargetOffset().x,
+          y: () => getTargetOffset().y,
+          scale: () => getTargetOffset().scale,
+          duration: 1.5,
+          ease: 'power2.inOut'
+        })
+        .to('#headerTitleTarget', { opacity: 1, duration: 1 }, '-=0.8');
+      },
+
+      // ----------------------------------------
+      // 2. スマホ用の設定（768px以下）
+      // ----------------------------------------
+      "(max-width: 768px)": function() {
+        gsap.set('#circlePart', { x: -80, y: -50, rotation: -45, opacity: 0, transformOrigin: 'center center' });
+        gsap.set('#trianglePart', { x: 80, y: 50, rotation: 45, opacity: 0, transformOrigin: 'center center' });
+        gsap.set(logo, { transformOrigin: 'top left' });
+        gsap.set('#headerTitleTarget', { opacity: 0 }); // スマホではメニュー中央文字は非表示
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: '#hero',
+            start: 'top top',
+            end: '+=900', // スクロール量をコンパクトに設定
+            scrub: 0.5,
+            pin: true,
+            invalidateOnRefresh: true
+          }
+        });
+
+        // STEP 1: 合体 & 文字消去
+        tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
+          .to('#heroGlanzText', { opacity: 0, duration: 0.5 }, '<');
+
+        // STEP 2: ヘッダーへ納める（文字フェードインは無し）
+        tl.to(logo, {
+          x: () => getTargetOffset().x,
+          y: () => getTargetOffset().y,
+          scale: () => getTargetOffset().scale,
+          duration: 1,
+          ease: 'power2.inOut'
+        });
       }
+
     });
 
-    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
-      .to('#heroText', { opacity: 0, duration: 0.5 }, '<')
-      .to(logo, {
-        x: () => getTargetOffset().x,
-        y: () => getTargetOffset().y,
-        scale: () => getTargetOffset().scale,
-        transformOrigin: 'top left',
-        duration: 1.5,
-        ease: 'power2.inOut'
-      });
-  },
-
-  // 2. スマホ用の設定（768px以下）
-  "(max-width: 768px)": function() {
-    // 初期位置：画面からはみ出さないよう控えめに分散
-    gsap.set('#circlePart', { x: -80, y: -60, rotation: -45, opacity: 0, transformOrigin: 'center center' });
-    gsap.set('#trianglePart', { x: 80, y: 60, rotation: 45, opacity: 0, transformOrigin: 'center center' });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: '+=800', // スマホはスクロール量を短くしてサクサク動かす
-        scrub: 0.5,
-        pin: true,
-        anticipatePin: 1
-      }
-    });
-
-    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
-      .to('#heroText', { opacity: 0, duration: 0.3 }, '<')
-      .to(logo, {
-        x: () => getTargetOffset().x,
-        y: () => getTargetOffset().y,
-        scale: () => getTargetOffset().scale,
-        transformOrigin: 'top left',
-        duration: 1,
-        ease: 'power2.inOut'
-      });
-  }
-
-});
-
-    // 画面サイズ変更時に位置を再計算
+    // 画面サイズ変更時やスマホの縦横変更時に計算位置を自動更新
     window.addEventListener('resize', () => ScrollTrigger.refresh());
   </script>
 </body>
