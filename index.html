@@ -129,59 +129,84 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
 
   <script>
-    gsap.registerPlugin(ScrollTrigger);
+   gsap.registerPlugin(ScrollTrigger);
 
-    const logo = document.getElementById('animatedLogo');
-    const target = document.getElementById('logoTarget');
+const logo = document.getElementById('animatedLogo');
+const target = document.getElementById('logoTarget');
 
-    // ターゲット（ヘッダー枠）への移動・縮小量を正確に算出する関数
-    function getTargetOffset() {
-      const targetRect = target.getBoundingClientRect();
-      const logoRect = logo.getBoundingClientRect();
+function getTargetOffset() {
+  const targetRect = target.getBoundingClientRect();
+  const logoRect = logo.getBoundingClientRect();
 
-      return {
-        x: targetRect.left - logoRect.left,
-        y: targetRect.top - logoRect.top,
-        scale: targetRect.width / logoRect.width
-      };
-    }
+  return {
+    x: targetRect.left - logoRect.left,
+    y: targetRect.top - logoRect.top,
+    scale: targetRect.width / logoRect.width
+  };
+}
 
-    // 1. 初期状態：パーツを分散させておく
+// 画面幅に応じた切り替えの設定
+ScrollTrigger.matchMedia({
+
+  // 1. PC用の設定（769px以上）
+  "(min-width: 769px)": function() {
+    // 初期位置：ダイナミックに大きく分散
     gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
     gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
 
-    // 2. 画面をピン留め（pin: true）してスクロールアニメーションを実行
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: '#hero',
         start: 'top top',
-        end: '+=1500', // 1500px分のスクロールで完了させる設定
-        scrub: 1,      // スクロール追従
-        pin: true,     // ★コレが最重要！完了するまで画面を画面固定する
+        end: '+=1500', // PCはしっかりスクロールさせて見せる
+        scrub: 1,
+        pin: true,
         anticipatePin: 1
       }
     });
 
-    // STEP A: 丸と三角が中央に引き寄せられて合体
-    tl.to(['#circlePart', '#trianglePart'], {
-      x: 0,
-      y: 0,
-      rotation: 0,
-      opacity: 1,
-      duration: 1.5,
-      ease: 'power2.out'
-    })
-    .to('#heroText', { opacity: 0, duration: 0.5 }, '<');
+    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
+      .to('#heroText', { opacity: 0, duration: 0.5 }, '<')
+      .to(logo, {
+        x: () => getTargetOffset().x,
+        y: () => getTargetOffset().y,
+        scale: () => getTargetOffset().scale,
+        transformOrigin: 'top left',
+        duration: 1.5,
+        ease: 'power2.inOut'
+      });
+  },
 
-    // STEP B: そのままヘッダー左上（#logoTarget）へ収まる
-    tl.to(logo, {
-      x: () => getTargetOffset().x,
-      y: () => getTargetOffset().y,
-      scale: () => getTargetOffset().scale,
-      transformOrigin: 'top left',
-      duration: 1.5,
-      ease: 'power2.inOut'
+  // 2. スマホ用の設定（768px以下）
+  "(max-width: 768px)": function() {
+    // 初期位置：画面からはみ出さないよう控えめに分散
+    gsap.set('#circlePart', { x: -80, y: -60, rotation: -45, opacity: 0, transformOrigin: 'center center' });
+    gsap.set('#trianglePart', { x: 80, y: 60, rotation: 45, opacity: 0, transformOrigin: 'center center' });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: '+=800', // スマホはスクロール量を短くしてサクサク動かす
+        scrub: 0.5,
+        pin: true,
+        anticipatePin: 1
+      }
     });
+
+    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
+      .to('#heroText', { opacity: 0, duration: 0.3 }, '<')
+      .to(logo, {
+        x: () => getTargetOffset().x,
+        y: () => getTargetOffset().y,
+        scale: () => getTargetOffset().scale,
+        transformOrigin: 'top left',
+        duration: 1,
+        ease: 'power2.inOut'
+      });
+  }
+
+});
 
     // 画面サイズ変更時に位置を再計算
     window.addEventListener('resize', () => ScrollTrigger.refresh());
