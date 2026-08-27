@@ -195,96 +195,97 @@
   <script>
     gsap.registerPlugin(ScrollTrigger);
 
-    const logo = document.getElementById('animatedLogo');
-    const target = document.getElementById('logoTarget');
+const logo = document.getElementById('animatedLogo');
+const target = document.getElementById('logoTarget');
 
-    // 目的地の正確な絶対座標差分を計算
-    function getTargetOffset() {
-      const targetRect = target.getBoundingClientRect();
-      const logoRect = logo.getBoundingClientRect();
+// 目的地の正確な座標と縮小率を計算
+function getTargetOffset() {
+  const targetRect = target.getBoundingClientRect();
+  const logoRect = logo.getBoundingClientRect();
 
-      return {
-        x: targetRect.left - logoRect.left,
-        y: targetRect.top - logoRect.top,
-        scale: targetRect.width / logoRect.width
-      };
-    }
+  return {
+    x: targetRect.left - logoRect.left,
+    y: targetRect.top - logoRect.top,
+    scale: targetRect.width / logoRect.width
+  };
+}
 
-    ScrollTrigger.matchMedia({
+ScrollTrigger.matchMedia({
 
-      // ----------------------------------------
-      // 1. PC用の設定（769px以上）
-      // ----------------------------------------
-      "(min-width: 769px)": function() {
-        // 初期配置（GSAP側でトランスフォーム座標を初期化）
-        gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1 });
-        gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
-        gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
+  // ----------------------------------------
+  // 1. PC用の設定（769px以上）
+  // ----------------------------------------
+  "(min-width: 769px)": function() {
+    gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1, transformOrigin: 'center center' });
+    gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
+    gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
 
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#hero',
-            start: 'top top',
-            end: '+=1200',
-            scrub: 1,
-            pin: true,
-            invalidateOnRefresh: true
-          }
-        });
-
-        // STEP 1: ロゴ合体 & GLANZ SVG消去
-        tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
-          .to('#heroGlanzText', { opacity: 0, duration: 0.8 }, '<');
-
-        // STEP 2: ヘッダー左上へ綺麗に吸い込まれる & ヘッダー中央にGLANZ表示
-        tl.to(logo, {
-          x: () => getTargetOffset().x,
-          y: () => getTargetOffset().y,
-          scale: () => getTargetOffset().scale,
-          duration: 1.5,
-          ease: 'power2.inOut'
-        })
-        .to('#headerTitleTarget', { opacity: 1, duration: 1 }, '-=0.8');
-      },
-
-      // ----------------------------------------
-      // 2. スマホ用の設定（768px以下）
-      // ----------------------------------------
-      "(max-width: 768px)": function() {
-        gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1 });
-        gsap.set('#circlePart', { x: -80, y: -50, rotation: -45, opacity: 0, transformOrigin: 'center center' });
-        gsap.set('#trianglePart', { x: 80, y: 50, rotation: 45, opacity: 0, transformOrigin: 'center center' });
-        gsap.set('#headerTitleTarget', { opacity: 0 }); // スマホではヘッダー中央文字は非表示
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: '#hero',
-            start: 'top top',
-            end: '+=800',
-            scrub: 0.5,
-            pin: true,
-            invalidateOnRefresh: true
-          }
-        });
-
-        // STEP 1: 合体 & 文字消去
-        tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
-          .to('#heroGlanzText', { opacity: 0, duration: 0.5 }, '<');
-
-        // STEP 2: ヘッダー枠内へ収まる
-        tl.to(logo, {
-          x: () => getTargetOffset().x,
-          y: () => getTargetOffset().y,
-          scale: () => getTargetOffset().scale,
-          duration: 1,
-          ease: 'power2.inOut'
-        });
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: '+=1000',
+        scrub: 1,
+        pin: true,
+        invalidateOnRefresh: true
       }
-
     });
 
-    // 画面サイズ変更時・リロード時の再計算
-    window.addEventListener('resize', () => ScrollTrigger.refresh());
+    // STEP 1: ロゴ合体 & GLANZ SVG消去
+    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
+      .to('#heroGlanzText', { opacity: 0, duration: 0.8 }, '<');
+
+    // STEP 2: 基準点を「左上」に変更してヘッダー枠へぴったり移動
+    tl.to(logo, {
+      x: () => getTargetOffset().x,
+      y: () => getTargetOffset().y,
+      scale: () => getTargetOffset().scale,
+      transformOrigin: 'left top', // ★コレでズレが解消されます！
+      duration: 1.5,
+      ease: 'power2.inOut'
+    })
+    .to('#headerTitleTarget', { opacity: 1, duration: 1 }, '-=0.8');
+  },
+
+  // ----------------------------------------
+  // 2. スマホ用の設定（768px以下）
+  // ----------------------------------------
+  "(max-width: 768px)": function() {
+    gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1, transformOrigin: 'center center' });
+    gsap.set('#circlePart', { x: -70, y: -40, rotation: -45, opacity: 0, transformOrigin: 'center center' });
+    gsap.set('#trianglePart', { x: 70, y: 40, rotation: 45, opacity: 0, transformOrigin: 'center center' });
+    gsap.set('#headerTitleTarget', { opacity: 0 });
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: '#hero',
+        start: 'top top',
+        end: '+=350', // ★スクロール量を超ショート（サクサク）に短縮！
+        scrub: 0.3,   // 追従レスポンスを素早く
+        pin: true,
+        invalidateOnRefresh: true
+      }
+    });
+
+    // STEP 1: 合体 & 文字消去
+    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
+      .to('#heroGlanzText', { opacity: 0, duration: 0.5 }, '<');
+
+    // STEP 2: 基準点を「左上」に変更してヘッダー枠へぴったり移動
+    tl.to(logo, {
+      x: () => getTargetOffset().x,
+      y: () => getTargetOffset().y,
+      scale: () => getTargetOffset().scale,
+      transformOrigin: 'left top', // ★コレでズレが解消されます！
+      duration: 1,
+      ease: 'power2.inOut'
+    });
+  }
+
+});
+
+// 画面サイズ変更時・画面回転時の再設定
+window.addEventListener('resize', () => ScrollTrigger.refresh());
   </script>
 </body>
 </html>
