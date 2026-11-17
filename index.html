@@ -76,6 +76,36 @@
     .nav-list a { text-decoration: none; }
     .nav-list a:hover { color: var(--orange); }
 
+    /* ハンバーガーボタン（スマホのみ表示） */
+    .menu-toggle {
+      display: none;
+      position: relative;
+      width: 44px;
+      height: 44px;
+      margin-right: -10px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+    }
+    .menu-toggle span {
+      position: absolute;
+      left: 11px;
+      width: 22px;
+      height: 2px;
+      background: var(--ink);
+      transition: transform .3s ease, opacity .2s ease, top .3s ease;
+    }
+    .menu-toggle span:nth-child(1) { top: 14px; }
+    .menu-toggle span:nth-child(2) { top: 21px; }
+    .menu-toggle span:nth-child(3) { top: 28px; }
+    .menu-toggle[aria-expanded="true"] span:nth-child(1) { top: 21px; transform: rotate(45deg); }
+    .menu-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+    .menu-toggle[aria-expanded="true"] span:nth-child(3) { top: 21px; transform: rotate(-45deg); }
+    .menu-toggle:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+    @keyframes menuIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+
     /* ---------- イントロ演出 ---------- */
     .intro-title {
       position: fixed;
@@ -279,6 +309,8 @@
 
     @media (prefers-reduced-motion: reduce) {
       .slide { transform: none; transition: opacity .01s; }
+      .nav-list.is-open { animation: none; }
+      .menu-toggle span { transition: none; }
     }
 
     @media (max-width: 768px) {
@@ -286,7 +318,24 @@
       .site-header { padding: 0 16px; }
       .header-logo-target { width: 32px; height: 32px; }
       .header-title { width: 88px; }
-      .nav-list { gap: 14px; font-size: 12px; }
+      .menu-toggle { display: block; }
+      /* メニューは開いたときだけヘッダー下に表示 */
+      .nav-list {
+        display: none;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        flex-direction: column;
+        gap: 0;
+        font-size: 17px;
+        background: rgba(255, 255, 255, .98);
+        border-bottom: 1px solid var(--line);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, .06);
+      }
+      .nav-list.is-open { display: flex; animation: menuIn .25s ease; }
+      .nav-list li + li { border-top: 1px solid var(--line); }
+      .nav-list a { display: block; padding: 18px 16px; }
       main { padding-top: 56px; }
       .hero { height: clamp(320px, 58svh, 480px); }
       .hero-inner { padding-bottom: 60px; }
@@ -314,10 +363,13 @@
       </svg>
     </div>
 
-    <ul class="nav-list reveal">
+    <ul class="nav-list reveal" id="navList">
       <li><a href="#business">事業内容</a></li>
       <li><a href="#company">会社情報</a></li>
     </ul>
+    <button type="button" class="menu-toggle reveal" id="menuToggle" aria-label="メニューを開く" aria-expanded="false" aria-controls="navList">
+      <span></span><span></span><span></span>
+    </button>
   </header>
 
   <!-- イントロ用：中央のGLANZ文字 -->
@@ -439,6 +491,26 @@
           scale: t.width / S
         };
       }
+
+      // ---------- ハンバーガーメニュー ----------
+      var toggle = document.getElementById('menuToggle');
+      var navList = document.getElementById('navList');
+      function setMenu(open) {
+        navList.classList.toggle('is-open', open);
+        toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        toggle.setAttribute('aria-label', open ? 'メニューを閉じる' : 'メニューを開く');
+      }
+      toggle.addEventListener('click', function () {
+        setMenu(toggle.getAttribute('aria-expanded') !== 'true');
+      });
+      navList.addEventListener('click', function (e) { if (e.target.closest('a')) setMenu(false); });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { setMenu(false); toggle.focus(); }
+      });
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.site-header')) setMenu(false);
+      });
+      window.matchMedia('(min-width: 769px)').addEventListener('change', function () { setMenu(false); });
 
       // ---------- 背景スライダー ----------
       var slides = Array.prototype.slice.call(document.querySelectorAll('#slides .slide'));
