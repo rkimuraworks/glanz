@@ -235,12 +235,20 @@
     .business { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
     .business li {
       display: grid;
-      grid-template-columns: 14em 1fr;
-      gap: 8px 32px;
-      padding: 24px 0;
+      grid-template-columns: 260px 1fr;
+      gap: 12px 32px;
+      align-items: center;
+      padding: 28px 0;
       border-bottom: 1px solid var(--line);
     }
-    .business h3 { margin: 0; font-size: 17px; font-weight: 700; }
+    .business img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 3 / 2;
+      object-fit: cover;
+      background: #e6e9eb;
+    }
+    .business h3 { margin: 0 0 6px; font-size: 18px; font-weight: 700; }
     .business p { margin: 0; color: var(--sub); max-width: 34em; }
 
     .company { margin: 0; border-top: 1px solid var(--line); }
@@ -329,7 +337,7 @@
     <polygon class="mark-orange" id="trianglePart" points="200,105.3 200,187.3 118,105.3"/>
   </svg>
 
-  <!-- ※ 以下の文言・住所はすべてダミーです -->
+  <!-- ※ 以下の文言・住所・画像はすべてダミーです（事業内容の画像は <img> の src を写真のパスに差し替え） -->
   <section class="hero reveal" aria-label="メインビジュアル">
     <div class="slides" id="slides">
       <!-- 写真に差し替える場合は .slide の数だけ追加・変更してください -->
@@ -351,16 +359,25 @@
       <h2>事業内容</h2>
       <ul class="business">
         <li>
-          <h3>プロダクト企画・開発</h3>
-          <p>生活雑貨から電子機器まで、企画から設計、試作、量産の手配までを一貫して行います。</p>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23d9dfe2'/%3E%3Crect y='290' width='600' height='110' fill='%23c3cbcf'/%3E%3Crect x='110' y='170' width='150' height='150' fill='%239DA5A9'/%3E%3Crect x='290' y='120' width='120' height='200' fill='%23FF5500'/%3E%3Ccircle cx='470' cy='250' r='70' fill='%2323282b'/%3E%3C/svg%3E" alt="試作中のプロダクト（ダミー画像）" width="600" height="400" loading="lazy">
+          <div>
+            <h3>プロダクト企画・開発</h3>
+            <p>生活雑貨から電子機器まで、企画から設計、試作、量産の手配までを一貫して行います。</p>
+          </div>
         </li>
         <li>
-          <h3>ブランディング・デザイン</h3>
-          <p>ロゴ、パッケージ、Webサイトの制作を通じて、企業や商品の魅力を形にします。</p>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23f1efec'/%3E%3Ccircle cx='230' cy='200' r='130' fill='%239DA5A9' fill-opacity='.85'/%3E%3Ccircle cx='370' cy='200' r='130' fill='%23FF5500' fill-opacity='.8'/%3E%3Crect x='60' y='330' width='480' height='8' fill='%2323282b'/%3E%3C/svg%3E" alt="デザイン制作のイメージ（ダミー画像）" width="600" height="400" loading="lazy">
+          <div>
+            <h3>ブランディング・デザイン</h3>
+            <p>ロゴ、パッケージ、Webサイトの制作を通じて、企業や商品の魅力を形にします。</p>
+          </div>
         </li>
         <li>
-          <h3>オンライン販売支援</h3>
-          <p>ECサイトの構築と運営、在庫管理、発送業務まで、販売に必要な業務をまとめて支援します。</p>
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 600 400'%3E%3Crect width='600' height='400' fill='%23e3e8ea'/%3E%3Crect x='70' y='80' width='200' height='110' fill='%23fff'/%3E%3Crect x='300' y='80' width='230' height='110' fill='%239DA5A9'/%3E%3Crect x='70' y='220' width='140' height='100' fill='%239DA5A9'/%3E%3Crect x='240' y='220' width='290' height='100' fill='%23fff'/%3E%3Crect x='440' y='100' width='60' height='24' fill='%23FF5500'/%3E%3C/svg%3E" alt="商品の梱包・発送のイメージ（ダミー画像）" width="600" height="400" loading="lazy">
+          <div>
+            <h3>オンライン販売支援</h3>
+            <p>ECサイトの構築と運営、在庫管理、発送業務まで、販売に必要な業務をまとめて支援します。</p>
+          </div>
         </li>
       </ul>
     </section>
