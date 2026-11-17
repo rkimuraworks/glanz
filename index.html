@@ -2,290 +2,511 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GSAP Logo Scroll Animation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>GLANZ | 事業内容・会社情報</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 
   <style>
-    *, *::before, *::after {
-      box-sizing: border-box;
+    :root {
+      --ink: #23282b;
+      --sub: #5b656a;
+      --grey: #9DA5A9;
+      --orange: #FF5500;
+      --line: #dfe3e5;
+      --bg: #f8f9fa;
+      --logo: 180px;
+      --header-h: 70px;
     }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--header-h) + 16px); }
 
     body {
       margin: 0;
-      padding: 0;
-      background-color: #f8f9fa;
-      font-family: sans-serif;
-      color: #333;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", Meiryo, sans-serif;
+      line-height: 1.8;
       overflow-x: hidden;
     }
 
-    /* 固定ヘッダー */
+    a { color: inherit; }
+    a:focus-visible { outline: 2px solid var(--orange); outline-offset: 4px; }
+
+    /* ---------- ヘッダー ---------- */
     .site-header {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 70px;
+      inset: 0 0 auto 0;
+      height: var(--header-h);
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 0 24px;
-      background-color: rgba(255, 255, 255, 0.95);
+      background: rgba(255, 255, 255, .95);
       backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
       z-index: 1000;
-      border-bottom: 1px solid #eee;
     }
 
-    /* ヘッダー左上のターゲット枠 */
-    .header-logo-target {
-      width: 40px;
-      height: 40px;
-    }
+    .header-logo-target { width: 40px; height: 40px; }
 
-    /* ヘッダー中央のターゲット（GLANZ SVG用） */
-    .header-title-target {
+    .header-title {
       position: absolute;
       left: 50%;
-      transform: translateX(-50%);
+      top: 50%;
       width: 120px;
-      height: auto;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0; /* 最初は非表示 */
+      transform: translate(-50%, -50%);
+      opacity: 0;
     }
-
-    .header-title-target svg {
-      width: 100%;
-      height: auto;
-      fill: #333;
-    }
+    .header-title svg, .intro-title svg { display: block; width: 100%; height: auto; fill: var(--ink); }
 
     .nav-list {
       display: flex;
-      gap: 20px;
-      list-style: none;
+      gap: 24px;
       margin: 0;
       padding: 0;
-      font-weight: bold;
+      list-style: none;
       font-size: 14px;
+      font-weight: 700;
     }
+    .nav-list a { text-decoration: none; }
+    .nav-list a:hover { color: var(--orange); }
 
-    /* 画面固定スクロールエリア */
-    .hero-section {
-      width: 100%;
-      height: 100vh;
-      position: relative;
-    }
-
-    /* 中央のGLANZ SVGテキスト */
-    .hero-glanz-svg {
-      position: absolute;
-      top: calc(50% + 80px); /* Gマークの直下に配置 */
-      left: 50%;
-      transform: translateX(-50%);
-      width: 180px;
-      height: auto;
-      z-index: 10;
-    }
-
-    .hero-glanz-svg svg {
-      width: 100%;
-      height: auto;
-      fill: #333;
-    }
-
-    /* アニメーションSVG（初期位置はGSAPで制御） */
-    .animated-logo {
+    /* ---------- イントロ演出 ---------- */
+    .intro-title {
       position: fixed;
-      top: 50%;
       left: 50%;
-      width: 180px;
-      height: 180px;
-      overflow: visible;
-      z-index: 2000;
+      top: calc(50% + var(--logo) / 2 + 10px);
+      width: calc(var(--logo) * 1.05);
+      transform: translateX(-50%);
+      z-index: 1500;
+      opacity: 0;
       pointer-events: none;
     }
 
-    .mark-grey { fill: #9DA5A9; }
-    .mark-orange { fill: #FF5500; }
+    .animated-logo {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      width: var(--logo);
+      height: var(--logo);
+      margin: calc(var(--logo) / -2 - 30px) 0 0 calc(var(--logo) / -2);
+      overflow: visible;
+      z-index: 2000;
+      pointer-events: none;
+      visibility: hidden;
+    }
+    .mark-grey { fill: var(--grey); }
+    .mark-orange { fill: var(--orange); }
 
-    /* 下部コンテンツ */
-    .content-section {
-      min-height: 150vh;
-      background: #ffffff;
-      padding: 100px 24px;
+    /* ---------- コンテンツ ---------- */
+    main {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 80px 24px 96px;
+    }
+
+    /* ---------- ヒーロー（背景スライダー＋キャッチコピー） ---------- */
+    .hero {
       position: relative;
-      z-index: 10;
+      margin-top: var(--header-h);
+      height: clamp(360px, 68svh, 640px);
+      overflow: hidden;
+      color: #fff;
+      background: #1d2a33;
+    }
+    .slides { position: absolute; inset: 0; }
+    .slide {
+      position: absolute;
+      inset: 0;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      transform: scale(1.06);
+      transition: opacity 1.2s ease, transform 7s linear;
+    }
+    .slide.is-active { opacity: 1; transform: scale(1); }
+
+    /* ▼ ダミー画像（SVG）。実際の写真に差し替える場合は
+         background-image: url(images/hero1.jpg); のように書き換えてください */
+    .slide.s1 {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='xMidYMax slice'%3E%3Cg fill='%23101d27' fill-opacity='.85'%3E%3Crect x='80' y='230' width='90' height='170'/%3E%3Crect x='190' y='150' width='70' height='250'/%3E%3Crect x='280' y='200' width='110' height='200'/%3E%3Cpath d='M520 400V120l60-70 60 70v280z'/%3E%3Crect x='680' y='210' width='100' height='190'/%3E%3Crect x='800' y='170' width='80' height='230'/%3E%3Crect x='900' y='240' width='130' height='160'/%3E%3Crect x='1060' y='140' width='70' height='260'/%3E%3Crect x='1150' y='220' width='110' height='180'/%3E%3Crect x='1290' y='180' width='90' height='220'/%3E%3Crect x='1400' y='250' width='120' height='150'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(180deg, #5f8fb0 0%, #a9c7d8 55%, #e9d9c4 100%);
+      background-repeat: no-repeat, no-repeat;
+      background-size: 100% auto, cover;
+      background-position: center bottom, center;
+    }
+    .slide.s2 {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='xMidYMax slice'%3E%3Cpath d='M0 400V300c200-60 400-20 600-50s500-90 1000-20v170z' fill='%23111c25' fill-opacity='.8'/%3E%3Cpath d='M0 400V340c300-40 700-10 1000-30s400-30 600 0v90z' fill='%230b141b' fill-opacity='.9'/%3E%3C/svg%3E"),
+        linear-gradient(180deg, #2c3e62 0%, #8a5d7a 50%, #f08a4b 100%);
+      background-repeat: no-repeat, no-repeat;
+      background-size: 100% auto, cover;
+      background-position: center bottom, center;
+    }
+    .slide.s3 {
+      background-image:
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 400' preserveAspectRatio='xMidYMax slice'%3E%3Cg fill='%23fff' fill-opacity='.12'%3E%3Ccircle cx='300' cy='120' r='140'/%3E%3Ccircle cx='1200' cy='260' r='200'/%3E%3C/g%3E%3C/svg%3E"),
+        linear-gradient(135deg, #3b4a52 0%, #6f7f87 50%, #9DA5A9 100%);
+      background-repeat: no-repeat, no-repeat;
+      background-size: cover, cover;
+      background-position: center, center;
+    }
+
+    /* 文字を読みやすくする暗めのグラデーション */
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, rgba(0,0,0,.15) 0%, rgba(0,0,0,.55) 100%);
+      pointer-events: none;
+    }
+
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px 72px;
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .lead {
+      margin: 0;
+      font-size: clamp(26px, 5.4vw, 52px);
+      font-weight: 700;
+      line-height: 1.45;
+      letter-spacing: .03em;
+      text-shadow: 0 2px 16px rgba(0,0,0,.35);
+    }
+    /* 文節ごとに改行位置を固定（文節の途中では折り返さない） */
+    .lead .nb { display: inline-block; }
+
+    .dots {
+      position: absolute;
+      z-index: 2;
+      left: 0; right: 0;
+      bottom: 24px;
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      display: flex;
+      gap: 4px;
+    }
+    .dots button {
+      width: 36px;
+      height: 24px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+      position: relative;
+    }
+    .dots button::before {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; top: 10px;
+      height: 3px;
+      background: rgba(255,255,255,.45);
+      transition: background .3s;
+    }
+    .dots button[aria-current="true"]::before { background: var(--orange); }
+    .dots button:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+
+    section + section { margin-top: 88px; }
+
+    h2 {
+      margin: 0 0 24px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: .06em;
+      padding-left: 14px;
+      border-left: 4px solid var(--orange);
+      line-height: 1.3;
+    }
+
+    .business { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--line); }
+    .business li {
+      display: grid;
+      grid-template-columns: 14em 1fr;
+      gap: 8px 32px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .business h3 { margin: 0; font-size: 17px; font-weight: 700; }
+    .business p { margin: 0; color: var(--sub); max-width: 34em; }
+
+    .company { margin: 0; border-top: 1px solid var(--line); }
+    .company div {
+      display: grid;
+      grid-template-columns: 8em 1fr;
+      gap: 8px 32px;
+      padding: 20px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .company dt { font-weight: 700; }
+    .company dd { margin: 0; }
+    .company .map-link { display: inline-block; margin-top: 6px; color: var(--orange); font-weight: 500; }
+
+    footer {
+      padding: 32px 24px calc(32px + env(safe-area-inset-bottom, 0px));
+      text-align: center;
+      font-size: 12px;
+      color: var(--sub);
+      border-top: 1px solid var(--line);
+    }
+
+    /* アニメーション前は隠す（JS無効時は表示） */
+    .reveal { opacity: 0; }
+    html.no-js .reveal { opacity: 1; }
+    html.no-js .animated-logo { visibility: visible; margin: 0; left: 24px; top: 15px; width: 40px; height: 40px; }
+    html.no-js .header-title { opacity: 1; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .slide { transform: none; transition: opacity .01s; }
     }
 
     @media (max-width: 768px) {
-      .animated-logo {
-        width: 140px;
-        height: 140px;
-      }
-      .hero-glanz-svg {
-        top: calc(50% + 65px);
-        width: 140px;
-      }
-      .header-logo-target {
-        width: 32px;
-        height: 32px;
-      }
-      .nav-list {
-        gap: 12px;
-        font-size: 12px;
-      }
+      :root { --logo: 140px; --header-h: 60px; }
+      .site-header { padding: 0 16px; }
+      .header-logo-target { width: 32px; height: 32px; }
+      .header-title { width: 88px; }
+      .nav-list { gap: 14px; font-size: 12px; }
+      main { padding-top: 56px; }
+      .hero { height: clamp(320px, 58svh, 480px); }
+      .hero-inner { padding-bottom: 60px; }
+      .dots { bottom: 16px; }
+      section + section { margin-top: 64px; }
+      .business li, .company div { grid-template-columns: 1fr; gap: 4px; }
     }
   </style>
+  <script>document.documentElement.className = 'js';</script>
+  <noscript><style>html.js .reveal { opacity: 1; } html.js .animated-logo { visibility: visible; }</style></noscript>
 </head>
 <body>
 
   <!-- 固定ヘッダー -->
   <header class="site-header">
     <div class="header-logo-target" id="logoTarget"></div>
-    <div class="header-title-target" id="headerTitleTarget">
-      <!-- 指定のGLANZ SVG（ヘッダー用） -->
-      <svg id="_レイヤー_1" data-name=" レイヤー 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.45 29.98">
-        <defs><style>.cls-1 { stroke-width: 0px; }</style></defs>
-        <path class="cls-1" d="m9.83,14.17h9.75v5.76c-.05,2.83-.99,5.21-2.82,7.12-1.84,1.9-4.16,2.88-6.96,2.93-2.16-.05-3.95-.6-5.4-1.63-1.47-1-2.53-2.15-3.2-3.46-.2-.43-.38-.83-.54-1.22-.15-.4-.28-.91-.38-1.51-.19-1.14-.28-3.33-.28-6.57s.09-5.49.28-6.6c.2-1.11.51-2.01.92-2.7.67-1.31,1.73-2.47,3.2-3.5,1.44-1.04,3.24-1.57,5.4-1.59,2.65.03,4.8.83,6.47,2.43,1.67,1.61,2.72,3.59,3.16,5.96h-4.41c-.34-1.14-.95-2.12-1.85-2.93-.93-.77-2.06-1.16-3.39-1.19-.98.03-1.82.23-2.52.6-.72.39-1.29.88-1.73,1.46-.54.61-.9,1.4-1.07,2.36-.2,1.01-.3,2.91-.3,5.7s.1,4.68.3,5.66c.18.99.53,1.79,1.07,2.4.44.58,1.02,1.06,1.73,1.42.7.43,1.54.64,2.52.64,1.62,0,2.96-.57,4.01-1.71,1.05-1.09,1.6-2.53,1.62-4.31v-1.48h-5.6v-4.04h.02Z"/>
-        <polygon class="cls-1" points="33.15 1.43 37.3 1.43 37.3 25.71 50.67 25.71 50.67 29.75 33.15 29.75 33.15 1.43"/>
-        <polygon class="cls-1" points="96.03 1.43 99.95 1.43 112.37 21.56 112.44 21.56 112.44 1.43 116.6 1.43 116.6 29.75 112.66 29.75 100.26 9.62 100.18 9.62 100.18 29.75 96.03 29.75 96.03 1.43"/>
-        <polygon class="cls-1" points="128.93 26.19 141.37 5.24 129.04 5.24 129.04 1.43 146.45 1.43 146.45 4.66 133.57 25.71 146.45 25.71 146.45 29.75 128.93 29.75 128.93 26.19"/>
-        <polygon class="cls-1" points="73.18 0 60.09 29.75 64.57 29.75 73.17 9.89 81.69 29.75 86.17 29.75 73.18 0"/>
+
+    <div class="header-title" id="headerTitle">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.45 29.98" role="img" aria-label="GLANZ">
+        <path d="m9.83,14.17h9.75v5.76c-.05,2.83-.99,5.21-2.82,7.12-1.84,1.9-4.16,2.88-6.96,2.93-2.16-.05-3.95-.6-5.4-1.63-1.47-1-2.53-2.15-3.2-3.46-.2-.43-.38-.83-.54-1.22-.15-.4-.28-.91-.38-1.51-.19-1.14-.28-3.33-.28-6.57s.09-5.49.28-6.6c.2-1.11.51-2.01.92-2.7.67-1.31,1.73-2.47,3.2-3.5,1.44-1.04,3.24-1.57,5.4-1.59,2.65.03,4.8.83,6.47,2.43,1.67,1.61,2.72,3.59,3.16,5.96h-4.41c-.34-1.14-.95-2.12-1.85-2.93-.93-.77-2.06-1.16-3.39-1.19-.98.03-1.82.23-2.52.6-.72.39-1.29.88-1.73,1.46-.54.61-.9,1.4-1.07,2.36-.2,1.01-.3,2.91-.3,5.7s.1,4.68.3,5.66c.18.99.53,1.79,1.07,2.4.44.58,1.02,1.06,1.73,1.42.7.43,1.54.64,2.52.64,1.62,0,2.96-.57,4.01-1.71,1.05-1.09,1.6-2.53,1.62-4.31v-1.48h-5.6v-4.04h.02Z"/>
+        <polygon points="33.15 1.43 37.3 1.43 37.3 25.71 50.67 25.71 50.67 29.75 33.15 29.75 33.15 1.43"/>
+        <polygon points="96.03 1.43 99.95 1.43 112.37 21.56 112.44 21.56 112.44 1.43 116.6 1.43 116.6 29.75 112.66 29.75 100.26 9.62 100.18 9.62 100.18 29.75 96.03 29.75 96.03 1.43"/>
+        <polygon points="128.93 26.19 141.37 5.24 129.04 5.24 129.04 1.43 146.45 1.43 146.45 4.66 133.57 25.71 146.45 25.71 146.45 29.75 128.93 29.75 128.93 26.19"/>
+        <polygon points="73.18 0 60.09 29.75 64.57 29.75 73.17 9.89 81.69 29.75 86.17 29.75 73.18 0"/>
       </svg>
     </div>
-    <ul class="nav-list">
-      <li>ABOUT</li>
-      <li>PRODUCTS</li>
-      <li>CONTACT</li>
+
+    <ul class="nav-list reveal">
+      <li><a href="#business">事業内容</a></li>
+      <li><a href="#company">会社情報</a></li>
     </ul>
   </header>
 
-  <!-- 画面固定スクロールエリア -->
-  <section class="hero-section" id="hero">
-    <div class="hero-glanz-svg" id="heroGlanzText">
-      <!-- 指定のGLANZ SVG（メイン用） -->
-      <svg id="_レイヤー_1" data-name=" レイヤー 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.45 29.98">
-        <defs><style>.cls-1 { stroke-width: 0px; }</style></defs>
-        <path class="cls-1" d="m9.83,14.17h9.75v5.76c-.05,2.83-.99,5.21-2.82,7.12-1.84,1.9-4.16,2.88-6.96,2.93-2.16-.05-3.95-.6-5.4-1.63-1.47-1-2.53-2.15-3.2-3.46-.2-.43-.38-.83-.54-1.22-.15-.4-.28-.91-.38-1.51-.19-1.14-.28-3.33-.28-6.57s.09-5.49.28-6.6c.2-1.11.51-2.01.92-2.7.67-1.31,1.73-2.47,3.2-3.5,1.44-1.04,3.24-1.57,5.4-1.59,2.65.03,4.8.83,6.47,2.43,1.67,1.61,2.72,3.59,3.16,5.96h-4.41c-.34-1.14-.95-2.12-1.85-2.93-.93-.77-2.06-1.16-3.39-1.19-.98.03-1.82.23-2.52.6-.72.39-1.29.88-1.73,1.46-.54.61-.9,1.4-1.07,2.36-.2,1.01-.3,2.91-.3,5.7s.1,4.68.3,5.66c.18.99.53,1.79,1.07,2.4.44.58,1.02,1.06,1.73,1.42.7.43,1.54.64,2.52.64,1.62,0,2.96-.57,4.01-1.71,1.05-1.09,1.6-2.53,1.62-4.31v-1.48h-5.6v-4.04h.02Z"/>
-        <polygon class="cls-1" points="33.15 1.43 37.3 1.43 37.3 25.71 50.67 25.71 50.67 29.75 33.15 29.75 33.15 1.43"/>
-        <polygon class="cls-1" points="96.03 1.43 99.95 1.43 112.37 21.56 112.44 21.56 112.44 1.43 116.6 1.43 116.6 29.75 112.66 29.75 100.26 9.62 100.18 9.62 100.18 29.75 96.03 29.75 96.03 1.43"/>
-        <polygon class="cls-1" points="128.93 26.19 141.37 5.24 129.04 5.24 129.04 1.43 146.45 1.43 146.45 4.66 133.57 25.71 146.45 25.71 146.45 29.75 128.93 29.75 128.93 26.19"/>
-        <polygon class="cls-1" points="73.18 0 60.09 29.75 64.57 29.75 73.17 9.89 81.69 29.75 86.17 29.75 73.18 0"/>
-      </svg>
-    </div>
-  </section>
+  <!-- イントロ用：中央のGLANZ文字 -->
+  <div class="intro-title" id="introTitle" aria-hidden="true">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 146.45 29.98">
+      <path d="m9.83,14.17h9.75v5.76c-.05,2.83-.99,5.21-2.82,7.12-1.84,1.9-4.16,2.88-6.96,2.93-2.16-.05-3.95-.6-5.4-1.63-1.47-1-2.53-2.15-3.2-3.46-.2-.43-.38-.83-.54-1.22-.15-.4-.28-.91-.38-1.51-.19-1.14-.28-3.33-.28-6.57s.09-5.49.28-6.6c.2-1.11.51-2.01.92-2.7.67-1.31,1.73-2.47,3.2-3.5,1.44-1.04,3.24-1.57,5.4-1.59,2.65.03,4.8.83,6.47,2.43,1.67,1.61,2.72,3.59,3.16,5.96h-4.41c-.34-1.14-.95-2.12-1.85-2.93-.93-.77-2.06-1.16-3.39-1.19-.98.03-1.82.23-2.52.6-.72.39-1.29.88-1.73,1.46-.54.61-.9,1.4-1.07,2.36-.2,1.01-.3,2.91-.3,5.7s.1,4.68.3,5.66c.18.99.53,1.79,1.07,2.4.44.58,1.02,1.06,1.73,1.42.7.43,1.54.64,2.52.64,1.62,0,2.96-.57,4.01-1.71,1.05-1.09,1.6-2.53,1.62-4.31v-1.48h-5.6v-4.04h.02Z"/>
+      <polygon points="33.15 1.43 37.3 1.43 37.3 25.71 50.67 25.71 50.67 29.75 33.15 29.75 33.15 1.43"/>
+      <polygon points="96.03 1.43 99.95 1.43 112.37 21.56 112.44 21.56 112.44 1.43 116.6 1.43 116.6 29.75 112.66 29.75 100.26 9.62 100.18 9.62 100.18 29.75 96.03 29.75 96.03 1.43"/>
+      <polygon points="128.93 26.19 141.37 5.24 129.04 5.24 129.04 1.43 146.45 1.43 146.45 4.66 133.57 25.71 146.45 25.71 146.45 29.75 128.93 29.75 128.93 26.19"/>
+      <polygon points="73.18 0 60.09 29.75 64.57 29.75 73.17 9.89 81.69 29.75 86.17 29.75 73.18 0"/>
+    </svg>
+  </div>
 
-  <!-- スクロール演出用のロゴ -->
-  <svg viewBox="0 0 200 200" class="animated-logo" id="animatedLogo">
+  <!-- アニメーションするGロゴ -->
+  <svg viewBox="0 0 200 200" class="animated-logo" id="animatedLogo" aria-hidden="true">
     <path class="mark-grey" id="circlePart" d="M100,152.4c-28.9,0-52.4-23.4-52.4-52.4S71.1,47.6,100,47.6c25.5,0,46.7,18.2,51.4,42.3h48.1 C194.4,39.4,151.8,0,100,0C44.8,0,0,44.8,0,100s44.8,100,100,100c25.3,0,48.3-9.4,65.9-24.8l-33.8-33.8 C123.2,148.2,112.1,152.4,100,152.4"/>
     <polygon class="mark-orange" id="trianglePart" points="200,105.3 200,187.3 118,105.3"/>
   </svg>
 
-  <!-- メインコンテンツ -->
-  <section class="content-section">
-    <h2>Main Content Area</h2>
+  <!-- ※ 以下の文言・住所はすべてダミーです -->
+  <section class="hero reveal" aria-label="メインビジュアル">
+    <div class="slides" id="slides">
+      <!-- 写真に差し替える場合は .slide の数だけ追加・変更してください -->
+      <div class="slide s1 is-active"></div>
+      <div class="slide s2"></div>
+      <div class="slide s3"></div>
+    </div>
+    <div class="hero-inner">
+      <h1 class="lead">
+        <span class="nb">横浜から、</span><span class="nb">ものづくりと</span><span class="nb">暮らしをつなぐ。</span>
+      </h1>
+    </div>
+    <div class="dots" id="dots"></div>
   </section>
 
-  <!-- GSAP & ScrollTrigger CDN -->
+  <main>
+
+    <section id="business" class="reveal">
+      <h2>事業内容</h2>
+      <ul class="business">
+        <li>
+          <h3>プロダクト企画・開発</h3>
+          <p>生活雑貨から電子機器まで、企画から設計、試作、量産の手配までを一貫して行います。</p>
+        </li>
+        <li>
+          <h3>ブランディング・デザイン</h3>
+          <p>ロゴ、パッケージ、Webサイトの制作を通じて、企業や商品の魅力を形にします。</p>
+        </li>
+        <li>
+          <h3>オンライン販売支援</h3>
+          <p>ECサイトの構築と運営、在庫管理、発送業務まで、販売に必要な業務をまとめて支援します。</p>
+        </li>
+      </ul>
+    </section>
+
+    <section id="company" class="reveal">
+      <h2>会社情報</h2>
+      <dl class="company">
+        <div>
+          <dt>会社名</dt>
+          <dd>株式会社グランツ</dd>
+        </div>
+        <div>
+          <dt>所在地</dt>
+          <dd>
+            〒220-0012<br>
+            神奈川県横浜市西区みなとみらい1-1-1 サンプルビル10F<br>
+            <a class="map-link" href="https://www.google.com/maps/search/?api=1&amp;query=%E6%A8%AA%E6%B5%9C%E5%B8%82%E8%A5%BF%E5%8C%BA%E3%81%BF%E3%81%AA%E3%81%A8%E3%81%BF%E3%82%89%E3%81%841-1-1" target="_blank" rel="noopener">Googleマップで見る</a>
+          </dd>
+        </div>
+        <div>
+          <dt>アクセス</dt>
+          <dd>みなとみらい線「みなとみらい駅」より徒歩5分</dd>
+        </div>
+        <div>
+          <dt>設立</dt>
+          <dd>2010年4月</dd>
+        </div>
+        <div>
+          <dt>代表者</dt>
+          <dd>代表取締役 山田 太郎</dd>
+        </div>
+      </dl>
+    </section>
+  </main>
+
+  <footer class="reveal">&copy; GLANZ Inc.</footer>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-
   <script>
-    gsap.registerPlugin(ScrollTrigger);
+    (function () {
+      var logo = document.getElementById('animatedLogo');
+      var target = document.getElementById('logoTarget');
+      var introTitle = document.getElementById('introTitle');
+      var headerTitle = document.getElementById('headerTitle');
+      var reveals = document.querySelectorAll('.reveal');
+      var root = document.documentElement;
+      var done = false;
 
-const logo = document.getElementById('animatedLogo');
-const target = document.getElementById('logoTarget');
+      function size() { return logo.getBoundingClientRect().width; } // 表示サイズ(px)
 
-// 目的地の正確な座標と縮小率を計算
-function getTargetOffset() {
-  const targetRect = target.getBoundingClientRect();
-  const logoRect = logo.getBoundingClientRect();
-
-  return {
-    x: targetRect.left - logoRect.left,
-    y: targetRect.top - logoRect.top,
-    scale: targetRect.width / logoRect.width
-  };
-}
-
-ScrollTrigger.matchMedia({
-
-  // ----------------------------------------
-  // 1. PC用の設定（769px以上）
-  // ----------------------------------------
-  "(min-width: 769px)": function() {
-    gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1, transformOrigin: 'center center' });
-    gsap.set('#circlePart', { x: -180, y: -120, rotation: -90, opacity: 0, transformOrigin: 'center center' });
-    gsap.set('#trianglePart', { x: 180, y: 120, rotation: 90, opacity: 0, transformOrigin: 'center center' });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: '+=1000',
-        scrub: 1,
-        pin: true,
-        invalidateOnRefresh: true
+      // 中央（初期位置）→ヘッダー枠 への移動量と縮小率
+      function getTargetOffset() {
+        var S = parseFloat(getComputedStyle(logo).width);
+        var cw = root.clientWidth, ch = root.clientHeight;
+        var t = target.getBoundingClientRect();
+        return {
+          x: t.left - (cw / 2 - S / 2),
+          y: t.top - (ch / 2 - S / 2 - 30),
+          scale: t.width / S
+        };
       }
-    });
 
-    // STEP 1: ロゴ合体 & GLANZ SVG消去
-    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.5, ease: 'power2.out' })
-      .to('#heroGlanzText', { opacity: 0, duration: 0.8 }, '<');
+      // ---------- 背景スライダー ----------
+      var slides = Array.prototype.slice.call(document.querySelectorAll('#slides .slide'));
+      var dotsWrap = document.getElementById('dots');
+      var hero = document.querySelector('.hero');
+      var current = 0, timer = null, INTERVAL = 5500;
+      var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // STEP 2: 基準点を「左上」に変更してヘッダー枠へぴったり移動
-    tl.to(logo, {
-      x: () => getTargetOffset().x,
-      y: () => getTargetOffset().y,
-      scale: () => getTargetOffset().scale,
-      transformOrigin: 'left top', // ★コレでズレが解消されます！
-      duration: 1.5,
-      ease: 'power2.inOut'
-    })
-    .to('#headerTitleTarget', { opacity: 1, duration: 1 }, '-=0.8');
-  },
+      var dotBtns = slides.map(function (_, i) {
+        var b = document.createElement('button');
+        b.type = 'button';
+        b.setAttribute('aria-label', (i + 1) + '枚目の画像を表示');
+        b.addEventListener('click', function () { go(i); restart(); });
+        dotsWrap.appendChild(b);
+        return b;
+      });
 
-  // ----------------------------------------
-  // 2. スマホ用の設定（768px以下）
-  // ----------------------------------------
-  "(max-width: 768px)": function() {
-    gsap.set(logo, { xPercent: -50, yPercent: -50, x: 0, y: 0, scale: 1, transformOrigin: 'center center' });
-    gsap.set('#circlePart', { x: -70, y: -40, rotation: -45, opacity: 0, transformOrigin: 'center center' });
-    gsap.set('#trianglePart', { x: 70, y: 40, rotation: 45, opacity: 0, transformOrigin: 'center center' });
-    gsap.set('#headerTitleTarget', { opacity: 0 });
-
-    const tl = gsap.timeline({
-      scrollTrigger: {
-        trigger: '#hero',
-        start: 'top top',
-        end: '+=350', // ★スクロール量を超ショート（サクサク）に短縮！
-        scrub: 0.3,   // 追従レスポンスを素早く
-        pin: true,
-        invalidateOnRefresh: true
+      function go(i) {
+        current = (i + slides.length) % slides.length;
+        slides.forEach(function (el, n) { el.classList.toggle('is-active', n === current); });
+        dotBtns.forEach(function (b, n) { b.setAttribute('aria-current', n === current ? 'true' : 'false'); });
       }
-    });
+      function stop() { clearInterval(timer); timer = null; }
+      function restart() {
+        stop();
+        if (!reduceMotion && slides.length > 1) timer = setInterval(function () { go(current + 1); }, INTERVAL);
+      }
+      go(0);
+      hero.addEventListener('mouseenter', stop);
+      hero.addEventListener('mouseleave', restart);
+      hero.addEventListener('focusin', stop);
+      hero.addEventListener('focusout', restart);
+      document.addEventListener('visibilitychange', function () { document.hidden ? stop() : restart(); });
 
-    // STEP 1: 合体 & 文字消去
-    tl.to(['#circlePart', '#trianglePart'], { x: 0, y: 0, rotation: 0, opacity: 1, duration: 1, ease: 'power2.out' })
-      .to('#heroGlanzText', { opacity: 0, duration: 0.5 }, '<');
+      // 動きを減らす設定 or JSなし：演出を省略して完成形を表示
+      var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    // STEP 2: 基準点を「左上」に変更してヘッダー枠へぴったり移動
-    tl.to(logo, {
-      x: () => getTargetOffset().x,
-      y: () => getTargetOffset().y,
-      scale: () => getTargetOffset().scale,
-      transformOrigin: 'left top', // ★コレでズレが解消されます！
-      duration: 1,
-      ease: 'power2.inOut'
-    });
-  }
+      gsap.set(logo, { visibility: 'visible', transformOrigin: '0 0' });
 
-});
+      if (reduce) {
+        var o = getTargetOffset();
+        gsap.set(logo, { x: o.x, y: o.y, scale: o.scale });
+        gsap.set([headerTitle, reveals], { opacity: 1 });
+        done = true;
+        restart();
+      } else {
+        // 演出中はスクロールさせない
+        root.style.overflow = 'hidden';
 
-// 画面サイズ変更時・画面回転時の再設定
-window.addEventListener('resize', () => ScrollTrigger.refresh());
+        gsap.set('#circlePart', { x: -140, y: -90, rotation: -90, opacity: 0, transformOrigin: '50% 50%' });
+        gsap.set('#trianglePart', { x: 140, y: 90, rotation: 90, opacity: 0, transformOrigin: '50% 50%' });
+
+        var tl = gsap.timeline({
+          onComplete: function () { done = true; root.style.overflow = ''; restart(); }
+        });
+
+        // 1. パーツが合体
+        tl.to(['#circlePart', '#trianglePart'], {
+            x: 0, y: 0, rotation: 0, opacity: 1, duration: 1.1, ease: 'power3.out'
+          })
+          // 2. GLANZの文字が現れる
+          .to(introTitle, { opacity: 1, duration: 0.6, ease: 'power1.out' }, '-=0.3')
+          // 3. 少し見せる → ヘッダー左上へ移動
+          .to(logo, {
+            x: function () { return getTargetOffset().x; },
+            y: function () { return getTargetOffset().y; },
+            scale: function () { return getTargetOffset().scale; },
+            duration: 1,
+            ease: 'power2.inOut'
+          }, '+=0.5')
+          .to(introTitle, { opacity: 0, duration: 0.4 }, '<')
+          .to(headerTitle, { opacity: 1, duration: 0.6 }, '-=0.4')
+          // 4. 事業内容・住所がフェードイン
+          .fromTo(reveals, { opacity: 0, y: function (i, el) { return el.classList.contains('hero') ? 0 : 14; } }, {
+            opacity: 1, y: 0, duration: 0.8, ease: 'power2.out', stagger: 0.15
+          }, '-=0.5');
+      }
+
+      // リサイズ時：完了後はロゴをヘッダー枠に合わせ直す
+      window.addEventListener('resize', function () {
+        if (!done) return;
+        var o = getTargetOffset();
+        gsap.set(logo, { x: o.x, y: o.y, scale: o.scale });
+      });
+    })();
   </script>
 </body>
 </html>
