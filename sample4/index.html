@@ -12,6 +12,7 @@ html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino S
 .sec{height:100vh;position:relative;display:flex;align-items:center;padding:0 6vw}
 .sec.r{justify-content:flex-end;text-align:right}
 .sec h2{margin:0;font-family:"Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:clamp(40px,9vw,128px);line-height:1;letter-spacing:.02em;color:#6f6b67}
+.sec h2{will-change:transform;backface-visibility:hidden}
 .sec h2 small{display:block;margin-top:14px;font-size:clamp(14px,1.6vw,20px);letter-spacing:.2em;font-weight:400;color:var(--sub)}
 #flat{position:fixed;left:0;right:0;top:0;bottom:0;z-index:1;display:grid;place-items:center;pointer-events:none}
 #flat div{display:flex;flex-direction:column;align-items:center;gap:calc(var(--L)*.18);transform:translateY(-2vh)}
@@ -114,10 +115,18 @@ function sm(a,b,x){x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);}
 var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,tp=0,p=0;
 function target(){var m=document.documentElement.scrollHeight-innerHeight;tp=m>0?scrollY/m:0;}
 addEventListener('scroll',target,{passive:true});target();p=tp;
-var TAU=Math.PI*2,sR=0,sT=0,last=performance.now(),clock=0;
+var headings=[].slice.call(document.querySelectorAll('.sec h2'));
+ var smoothScroll=scrollY;
+ var TAU=Math.PI*2,sR=0,sT=0,last=performance.now(),clock=0;
 function tick(){
  var now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
- p+=(tp-p)*(reduce?1:.08);
+ p+=(tp-p)*(reduce?1:1-Math.exp(-dt/0.17));
+  // 文字はブラウザのスクロールに追従しつつ、わずかな慣性で着地させる。
+  // スクロールが止まっても急停止せず、滑らかに残りの移動を消化する。
+  var sy=scrollY;
+  smoothScroll+=(sy-smoothScroll)*(reduce?1:1-Math.exp(-dt/0.19));
+  var lag=reduce?0:Math.max(-130,Math.min(130,sy-smoothScroll));
+  headings.forEach(function(el){el.style.transform='translate3d(0,'+lag.toFixed(2)+'px,0)';});
  var cross=sm(.09,.14,p)*(1-sm(.86,.91,p));
  var sep=sm(.15,.34,p)*(1-sm(.66,.85,p));
  cv.style.opacity=cross;flat.style.opacity=1-cross;hint.style.opacity=p<.03?1:0;
@@ -139,4 +148,3 @@ tick();
 </script>
 </body>
 </html>
-
