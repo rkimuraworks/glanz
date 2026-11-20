@@ -1,1 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>GLANZ 浮遊ロゴ プロトタイプ</title>
+<style>
+:root{--bg:#050505;--ink:#e9e6e3;--sub:#7d7873;--L:320px;box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Yu Gothic",sans-serif}
+.sec{height:100vh;position:relative;display:flex;align-items:center;padding:0 6vw}
+.sec.r{justify-content:flex-end;text-align:right}
+.sec h2{margin:0;font-family:"Helvetica Neue",Arial,sans-serif;font-weight:700;font-size:clamp(40px,9vw,128px);line-height:1;letter-spacing:.02em;color:#6f6b67}
+.sec h2 small{display:block;margin-top:14px;font-size:clamp(14px,1.6vw,20px);letter-spacing:.2em;font-weight:400;color:var(--sub)}
+#flat{position:fixed;left:0;right:0;top:0;bottom:0;z-index:1;display:grid;place-items:center;pointer-events:none}
+#flat div{display:flex;flex-direction:column;align-items:center;gap:calc(var(--L)*.18);transform:translateY(-2vh)}
+#mark{width:var(--L);height:var(--L);display:block}
+#word{width:calc(var(--L)*.62);height:auto;display:block}
+#gl{position:fixed;inset:0;z-index:2;width:100%;height:100%;pointer-events:none;opacity:0}
+.hint{position:fixed;left:0;right:0;bottom:calc(4vh + env(safe-area-inset-bottom,0px));z-index:3;text-align:center;font-size:11px;letter-spacing:.3em;color:var(--sub);transition:opacity .4s}
+.err{display:none;position:fixed;inset:0;z-index:4;place-items:center;color:var(--sub);font-size:14px;text-align:center}
+</style>
+</head>
+<body>
+<div id="flat"><div>
+ <svg id="mark" viewBox="0 0 200 199.99" aria-label="GLANZ">
+  <defs><linearGradient id="gm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f2f3f4"/><stop offset=".5" stop-color="#a9afb3"/><stop offset="1" stop-color="#dfe2e4"/></linearGradient></defs>
+  <path fill="url(#gm)" d="m99.99,152.36c-28.92,0-52.37-23.45-52.37-52.37s23.45-52.37,52.37-52.37c25.46,0,46.67,18.17,51.38,42.25h48.1C194.4,39.4,151.8,0,99.99,0,44.77,0,0,44.77,0,99.99s44.77,99.99,99.99,99.99c25.26,0,48.3-9.38,65.9-24.83l-33.8-33.8c-8.87,6.89-20,11.01-32.1,11.01Z"/>
+  <polygon fill="#ff5500" points="200 105.33 200 187.29 118.04 105.33 200 105.33"/>
+ </svg>
+ <svg id="word" viewBox="0 0 146.45 29.98" fill="#e9e6e3" aria-hidden="true"><path d="m9.83,14.17h9.75v5.76c-.05,2.83-.99,5.21-2.82,7.12-1.84,1.9-4.16,2.88-6.96,2.93-2.16-.05-3.95-.6-5.4-1.63-1.47-1-2.53-2.15-3.2-3.46-.2-.43-.38-.83-.54-1.22-.15-.4-.28-.91-.38-1.51-.19-1.14-.28-3.33-.28-6.57s.09-5.49.28-6.6c.2-1.11.51-2.01.92-2.7.67-1.31,1.73-2.47,3.2-3.5,1.44-1.04,3.24-1.57,5.4-1.59,2.65.03,4.8.83,6.47,2.43,1.67,1.61,2.72,3.59,3.16,5.96h-4.41c-.34-1.14-.95-2.12-1.85-2.93-.93-.77-2.06-1.16-3.39-1.19-.98.03-1.82.23-2.52.6-.72.39-1.29.88-1.73,1.46-.54.61-.9,1.4-1.07,2.36-.2,1.01-.3,2.91-.3,5.7s.1,4.68.3,5.66c.18.99.53,1.79,1.07,2.4.44.58,1.02,1.06,1.73,1.42.7.43,1.54.64,2.52.64,1.62,0,2.96-.57,4.01-1.71,1.05-1.09,1.6-2.53,1.62-4.31v-1.48h-5.6v-4.04Z"/><polygon points="33.15 1.43 37.3 1.43 37.3 25.71 50.67 25.71 50.67 29.75 33.15 29.75 33.15 1.43"/><polygon points="96.03 1.43 99.95 1.43 112.37 21.56 112.44 21.56 112.44 1.43 116.6 1.43 116.6 29.75 112.66 29.75 100.26 9.62 100.18 9.62 100.18 29.75 96.03 29.75 96.03 1.43"/><polygon points="128.93 26.19 141.37 5.24 129.04 5.24 129.04 1.43 146.45 1.43 146.45 4.66 133.57 25.71 146.45 25.71 146.45 29.75 128.93 29.75 128.93 26.19"/><polygon points="73.18 0 60.09 29.75 64.57 29.75 73.17 9.89 81.69 29.75 86.17 29.75 73.18 0"/></svg>
+</div></div>
+<canvas id="gl"></canvas>
+<div class="err" id="err">このブラウザでは3D表示ができません</div>
+<div class="hint" id="hint">SCROLL</div>
+
+<div class="sec"></div>
+<div class="sec"><h2>PHOTO<small>写真撮影</small></h2></div>
+<div class="sec r"><h2>FLYER<small>チラシ・ポスター</small></h2></div>
+<div class="sec"><h2>PACKAGE<small>パッケージデザイン</small></h2></div>
+<div class="sec r"><h2>MOVIE<small>動画制作</small></h2></div>
+<div class="sec"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/SVGLoader.js"></script>
+<script>
+(function(){
+var MARK='<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 199.99"><path d="m99.99,152.36c-28.92,0-52.37-23.45-52.37-52.37s23.45-52.37,52.37-52.37c25.46,0,46.67,18.17,51.38,42.25h48.1C194.4,39.4,151.8,0,99.99,0,44.77,0,0,44.77,0,99.99s44.77,99.99,99.99,99.99c25.26,0,48.3-9.38,65.9-24.83l-33.8-33.8c-8.87,6.89-20,11.01-32.1,11.01Z"/><polygon points="200 105.33 200 187.29 118.04 105.33 200 105.33"/></svg>';
+var cv=document.getElementById('gl'),flat=document.getElementById('flat'),hint=document.getElementById('hint'),renderer;
+try{renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true,alpha:true});}catch(e){document.getElementById('err').style.display='grid';return;}
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.outputEncoding=THREE.sRGBEncoding;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=.9;
+var scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(30,1,.1,60);
+
+var es=new THREE.Scene();es.background=new THREE.Color(0x010101);
+function box(w,h,d,x,y,z,c,i){var m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshBasicMaterial({color:new THREE.Color(c).multiplyScalar(i)}));m.position.set(x,y,z);es.add(m);}
+box(6,.4,6,0,6,0,0xffffff,1.2);box(.4,9,7,-6,0,0,0xffffff,5);box(.3,9,7,6,0,0,0xbfd4ff,4);box(10,.25,.5,0,-3,-5,0xffd9b0,3);
+(function(){var c=document.createElement('canvas');c.width=64;c.height=512;var x=c.getContext('2d'),g=x.createLinearGradient(0,0,0,512);
+ g.addColorStop(0,'#222');g.addColorStop(.08,'#fff');g.addColorStop(.12,'#fff');g.addColorStop(.14,'#060606');g.addColorStop(.3,'#040404');g.addColorStop(.33,'#9a9a9a');g.addColorStop(.35,'#fff');g.addColorStop(.38,'#0a0a0a');g.addColorStop(.6,'#151515');g.addColorStop(.64,'#bbb');g.addColorStop(.66,'#fff');g.addColorStop(.68,'#050505');g.addColorStop(1,'#000');
+ x.fillStyle=g;x.fillRect(0,0,64,512);
+ var m=new THREE.Mesh(new THREE.PlaneGeometry(16,16),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(c),color:new THREE.Color(0xffffff).multiplyScalar(2.4),side:THREE.DoubleSide}));m.position.set(0,0,9);m.rotation.y=Math.PI;es.add(m);})();
+var env=new THREE.PMREMGenerator(renderer).fromScene(es,.02).texture;
+var chrome=new THREE.MeshStandardMaterial({color:0xc4c5c9,metalness:1,roughness:.07,envMap:env,envMapIntensity:1.25});
+var orange=new THREE.MeshPhysicalMaterial({color:0xff2a00,metalness:.35,roughness:.3,clearcoat:.5,clearcoatRoughness:.04,envMap:env,envMapIntensity:.4});
+
+var loader=new THREE.SVGLoader(),geo=[];
+loader.parse(MARK).paths.forEach(function(p,i){THREE.SVGLoader.createShapes(p).forEach(function(sh){
+ var o=i?{depth:2,bevelEnabled:true,bevelThickness:4,bevelSize:3,bevelOffset:-3,bevelSegments:8,curveSegments:16}:{depth:6,bevelEnabled:true,bevelThickness:12,bevelSize:10,bevelOffset:-10,bevelSegments:16,curveSegments:64};
+ var g=new THREE.ExtrudeGeometry(sh,o);g.translate(-100,-100,0);g.rotateX(Math.PI);g.scale(.01,.01,.01);geo[i]=g;});});
+// C の輪郭を円弧から直接作り、4つの角を少し丸める(縁取りの崩れ防止)
+(function(){
+ var Ro=100,Ri=52.37,n=300,pts=[],corners=[],i,a;
+ var oA=Math.asin(10.13/Ro),oB=Math.atan2(-75.15,65.89)+2*Math.PI,iA=Math.asin(10.13/Ri),iB=Math.atan2(-41.35,32.1)+2*Math.PI;
+ function line(x0,y0,x1,y1){var m=Math.ceil(Math.hypot(x1-x0,y1-y0)/2);for(var j=1;j<=m;j++)pts.push([x0+(x1-x0)*j/m,y0+(y1-y0)*j/m]);}
+ for(i=0;i<=n;i++){a=oA+(oB-oA)*i/n;pts.push([Ro*Math.cos(a),Ro*Math.sin(a)]);}
+ corners.push([0,6],[n,6]);
+ var tp=[Ri*Math.cos(iB),Ri*Math.sin(iB)];
+ line(pts[n][0],pts[n][1],tp[0],tp[1]);corners.push([pts.length-1,6]);
+ for(i=1;i<=n;i++){a=iB+(iA-iB)*i/n;pts.push([Ri*Math.cos(a),Ri*Math.sin(a)]);}
+ corners.push([pts.length-1,6]);
+ line(pts[pts.length-1][0],pts[pts.length-1][1],Ro*Math.cos(oA),Ro*Math.sin(oA));pts.pop();
+ var N=pts.length,m=Math.floor(n/2);
+ pts=pts.slice(m).concat(pts.slice(0,m));
+ corners=corners.map(function(c){return[(c[0]-m+N)%N,c[1]];}).sort(function(x,y){return y[0]-x[0];});
+ corners.forEach(function(cc){var c=cc[0],K=cc[1];
+  var ia=c,ib=c,d=0;
+  while(d<K){d+=Math.hypot(pts[ia][0]-pts[ia-1][0],pts[ia][1]-pts[ia-1][1]);ia--;}
+  d=0;while(d<K){d+=Math.hypot(pts[ib][0]-pts[ib+1][0],pts[ib][1]-pts[ib+1][1]);ib++;}
+  var A=pts[ia],B=pts[ib],P=pts[c],ins=[];
+  for(var t=1;t<10;t++){var u=t/10;ins.push([(1-u)*(1-u)*A[0]+2*u*(1-u)*P[0]+u*u*B[0],(1-u)*(1-u)*A[1]+2*u*(1-u)*P[1]+u*u*B[1]]);}
+  pts.splice.apply(pts,[ia+1,ib-ia-1].concat(ins));
+ });
+ var sh=new THREE.Shape();pts.forEach(function(q,j){j?sh.lineTo(q[0],q[1]):sh.moveTo(q[0],q[1]);});
+ var g=new THREE.ExtrudeGeometry(sh,{depth:6,bevelEnabled:true,bevelThickness:10,bevelSize:2,bevelOffset:-2,bevelSegments:14,curveSegments:16});
+ g.scale(.01,.01,.01);geo[0]=g;
+})();
+var ring=new THREE.Mesh(geo[0],chrome);
+geo[1].computeBoundingBox();var tc=new THREE.Vector3();geo[1].boundingBox.getCenter(tc);geo[1].translate(-tc.x,-tc.y,0);
+var triG=new THREE.Group(),tri=new THREE.Mesh(geo[1],orange);triG.add(tri);
+scene.add(ring,triG);
+
+var W=1,H=1,L=320,X=2;
+function resize(){W=innerWidth;H=innerHeight;L=Math.min(W*.5,H*.42);
+ document.documentElement.style.setProperty('--L',L+'px');
+ renderer.setSize(W,H,false);camera.aspect=W/H;
+ var Hw=2*H/L;camera.position.set(0,0,Hw/2/Math.tan(15*Math.PI/180));camera.lookAt(0,0,0);
+ camera.updateProjectionMatrix();X=W/L;
+ var r=document.getElementById('mark').getBoundingClientRect(),dy=((r.top+r.height/2)-H/2)*2/L;
+ camera.position.y=dy;camera.lookAt(0,dy,0);}
+addEventListener('resize',resize);resize();
+
+function sm(a,b,x){x=Math.min(1,Math.max(0,(x-a)/(b-a)));return x*x*(3-2*x);}
+var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,tp=0,p=0;
+function target(){var m=document.documentElement.scrollHeight-innerHeight;tp=m>0?scrollY/m:0;}
+addEventListener('scroll',target,{passive:true});target();p=tp;
+var TAU=Math.PI*2,sR=0,sT=0,last=performance.now(),clock=0;
+function tick(){
+ var now=performance.now(),dt=Math.min(.05,(now-last)/1000);last=now;
+ p+=(tp-p)*(reduce?1:.08);
+ var cross=sm(.09,.14,p)*(1-sm(.86,.91,p));
+ var sep=sm(.15,.34,p)*(1-sm(.66,.85,p));
+ cv.style.opacity=cross;flat.style.opacity=1-cross;hint.style.opacity=p<.03?1:0;
+ var a=reduce?0:1;clock+=dt*a;
+ // 浮かんでいる間だけ、止まっていてもゆっくり回る・ふわふわ動く(組み上がった状態では動かさない)
+ sR+=dt*.32*sep*a;sT+=dt*.45*sep*a;
+ var iR=sR+(Math.round(sR/TAU)*TAU-sR)*(1-sep),iT=sT+(Math.round(sT/TAU)*TAU-sT)*(1-sep);
+ var bob=sep*a;
+ ring.position.set(sep*(-X*.4+Math.sin(p*9)*.4)+bob*Math.sin(clock*.5)*.07,sep*Math.sin(p*7)*.6+bob*Math.sin(clock*.8)*.12,sep*Math.sin(p*5)*.8);
+ ring.scale.setScalar(1+sep*.55);
+ ring.rotation.set(sep*(.5+p*4.5)*a+bob*Math.sin(clock*.37)*.18,sep*(p*7)*a+iR,sep*(p*3)*a+bob*Math.sin(clock*.29)*.2);
+ triG.position.set(tc.x+sep*(X*.38+Math.cos(p*8)*.35)+bob*Math.cos(clock*.6)*.08,tc.y+sep*(Math.cos(p*6)*.55-.1)+bob*Math.sin(clock*.9+1.3)*.14,sep*Math.cos(p*4)*.8);
+ triG.scale.setScalar(1+sep*.35);
+ triG.rotation.set(sep*p*6*a+bob*Math.sin(clock*.41)*.25,sep*p*9*a+iT,sep*(p*5)*a+bob*Math.cos(clock*.33)*.25);
+ renderer.render(scene,camera);requestAnimationFrame(tick);
+}
+tick();
+})();
+</script>
+</body>
+</html>
 
